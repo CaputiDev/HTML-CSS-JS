@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craps</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1d3557, #457b9d);
+            color: #f1faee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form, fieldset {
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #264653;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            border-radius: 10px;
+            border: 2px solid #f1faee;
+        }
+
+        input[type="button"] {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #264653;
+            background-color: #e9c46a;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="button"]:hover {
+            background-color: #f4a261;
+        }
+
+        table {
+            width: 100%;
+            margin: 10px 0;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        table, td, th {
+            border: 2px solid #f1faee;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        .vitoriaTable {
+            color: #2a9d8f;
+            font-weight: bold;
+        }
+
+        .perdaTable {
+            color: #e63946;
+            font-weight: bold;
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #e9c46a;
+        }
+
+        p {
+            text-align: center;
+        }
+    </style>
+     <script>
+        //variaveis globais
+
+        //largura e altura canvas
+        var larguraCanvas = 800;
+        var alturaCanvas = 600;
+
+        //posicao inicial do dado
+        var dadoX = 100;
+        var dadoY = 200;
+        
+        //tamanho do dado
+        var tamXDado = 200;
+        var tamYDado = 200;
+        
+        //raio da bola
+        var raioBola = 12;
+        
+        //posicao variavel do dado  
+        var dx;
+        var dy; 
+
+        // canvas e contexto do canvas
+        var canvas 
+        var ctx;
+
+        //verifica se é a primeira jogada
+        var primeiraJogada = true;
+
+        //variavel de pontos
+        var pontos;
+        
+        //variavel do dinheiro e da aposta
+        var saldo;
+        var aposta;
+
+        function jogarDados(){
+            canvas = document.getElementById("desenho");
+            ctx = canvas.getContext('2d');
+            
+            //permite que o usuario insira mais dinheiro e aposte mais
+            saldo = Number(document.formulario.banco.value);
+            aposta = Number(document.formulario.aposta.value);
+            //limpa o canvas
+            ctx.clearRect(0,0,larguraCanvas,alturaCanvas);
+            
+            //joga dado 1
+            let valorDado1 = 1+Math.floor(Math.random()*6);
+            dx=dadoX;
+            dy=dadoY;
+            desenharDado(valorDado1);
+            
+            //joga dado 2
+            let valorDado2 = 1+Math.floor(Math.random()*6);
+            dx=larguraCanvas - dadoX -tamXDado;
+            desenharDado(valorDado2);
+
+            let soma= valorDado1 +valorDado2;
+            
+            if(saldo<10){
+                document.formulario.banco.value="Coloque mais dinheiro!";
+                return;
+            }
+            if(aposta<10){
+                document.formulario.aposta.value="Valor minímo:10";
+                return;
+            }
+
+            ;
+            
+            if(primeiraJogada){
+            switch(soma){
+                case 7:
+                case 11:
+                    document.formulario.result.value = "Você Ganhou!!";
+                    saldo +=2*aposta;
+                    document.formulario.banco.value=saldo;
+                    break;
+                case 2:
+                case 3:
+                case 12:
+                    document.formulario.result.value = "Você perdeu!!";
+                    saldo -=aposta;
+                    document.formulario.banco.value=saldo;
+                    break;
+                default:
+                    point = soma;
+                    document.formulario.pt.value = point;
+
+                    document.formulario.stage.value = "Jogue mais";
+                    document.formulario.result.value = "";
+                    primeiraJogada= false;
+            }
+
+        }else{
+            switch(soma){
+                case point:
+                    document.formulario.result.value = "Você Ganhou!!";
+                    document.formulario.stage.value = "De volta a Primeira Jogada";
+                    document.formulario.pt.value = "";
+                    primeiraJogada = true;
+                    saldo += 2 * aposta;
+                    document.formulario.banco.value=saldo; 
+                    break;
+                case 7:
+                    document.formulario.result.value = "Você perdeu!!";
+                    document.formulario.stage.value = "De volta a Primeira Jogada";
+                    document.formulario.pt.value = "";
+                    saldo -= aposta;
+                    document.formulario.banco.value=saldo;
+                    primeiraJogada = true;
+            }
+        }
+    }
+
+        
+        function desenharDado(n){
+            
+
+            
+
+            //define as config do contorno
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#000";
+
+            //desenha contorno do dado
+            ctx.strokeRect(dx,dy,tamXDado,tamYDado);
+            
+            //preenche o dado de branco
+            ctx.fillStyle= "#fff";
+            ctx.fillRect(dx,dy,tamXDado,tamYDado);
+
+            //cor das bolinha do dado
+            ctx.fillStyle= "#f00"; 
+           
+            switch(n){
+                
+                case 1:
+                    desenha1();
+                    break;
+
+                case 2:
+                    desenha2();
+                    break;
+    
+                case 3:
+                    desenha1();
+                    desenha2();
+                    break;
+        
+                case 4:
+                    desenha4();
+                    break;
+                
+                case 5:
+                    desenha4();
+                    desenha1();
+                    break;
+                
+                case 6:
+                    desenha4();
+                    desenha2meio();
+                    break;
+            }
+
+            
+            
+
+        }
+    function desenha1(){
+        var bolaX;
+        var bolaY;
+
+        ctx.beginPath();
+        bolaX = dx+0.5*tamXDado;
+        bolaY = dy+0.5*tamYDado;
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+        ctx.closePath();
+        ctx.fill();    
+    }
+    function desenha2(){
+        var bolaX;
+        var bolaY;
+
+        ctx.beginPath();
+        
+        //primeira bola
+        bolaX = dx + 3*raioBola;
+        bolaY = dy + 3*raioBola; 
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+
+        //segunda bola
+        bolaX = dx + tamXDado-3*raioBola;
+        bolaY = dy + tamYDado-3*raioBola;
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+
+        ctx.closePath();
+        ctx.fill();
+    }
+    function desenha4(){
+        var bolaX;
+        var bolaY;
+
+        ctx.beginPath();
+        //primeira bola
+        bolaX = dx + 3*raioBola;
+        bolaY = dy + 3*raioBola; 
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+
+        //segunda bola
+        bolaX = dx + tamXDado - 3*raioBola;
+        bolaY = dy + 3*raioBola; 
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+        
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        //terceira bola
+        bolaX = dx + tamXDado - 3*raioBola;
+        bolaY = dy + tamYDado - 3*raioBola;
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+        
+        //quarta bola
+        bolaX = dx + 3*raioBola;
+        bolaY = dy + tamYDado - 3*raioBola;
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+
+        ctx.closePath();
+        ctx.fill(); 
+    }
+    function desenha2meio(){
+        var bolaX;
+        var bolaY;
+
+        ctx.beginPath();
+
+        //bola esquerda
+        bolaX = dx + 3*raioBola;
+        bolaY = dy + 0.5*tamYDado;
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+        
+        //bola direita
+        bolaX = dx + tamXDado-3*raioBola;
+        bolaY = dy + 0.5*tamYDado;
+        ctx.arc(bolaX,bolaY,raioBola,0,Math.PI*2,true);
+        ctx.closePath();
+        ctx.fill(); 
+
+    }
+    </script>
+</head>
+<body>
+    <div>
+        <canvas id="desenho" width="800" height="600">
+            Seu navegador não suporta Canvas
+        </canvas>
+        <form name="formulario">
+            <div>
+                Estágio: <input name="stage" value="Primeira Jogada" readonly>
+                Pontos: <input name="pt" value="" readonly>
+                <br>Resultado: <input name="result" value="" readonly>
+            </div>
+            <div>
+                Saldo: <input name="banco" value="100">
+                Valor Apostado: <input name="aposta" value="10">
+            </div>
+            <input type="button" value="JOGAR DADOS!" onclick="jogarDados()">
+        </form>
+        <fieldset>
+            <h2>Regras Craps</h2>
+            <h3>Primeira Rodada</h3>
+            <table>
+                <tr>
+                    <td class="vitoriaTable">Vitória</td>
+                    <td class="perdaTable">Perda</td>
+                    <td>Jogar de novo</td>
+                </tr>
+                <tr>
+                    <td class="vitoriaTable">7 e 11</td>
+                    <td class="perdaTable">2, 3, 12</td>
+                    <td>Qualquer outro número</td>
+                </tr>
+            </table>
+            <p>A soma de seu primeiro lance serão seus pontos</p>
+            <h3>Demais Rodadas</h3>
+            <table>
+                <tr>
+                    <td class="vitoriaTable">Vitória</td>
+                    <td class="perdaTable">Perda</td>
+                    <td>Jogar de novo</td>
+                </tr>
+                <tr>
+                    <td class="vitoriaTable">Se a soma for igual aos seus pontos</td>
+                    <td class="perdaTable">7</td>
+                    <td>Qualquer outro número</td>
+                </tr>
+            </table>
+        </fieldset>
+    </div>
+</body>
+</html>
